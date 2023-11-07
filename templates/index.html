@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Salad Creator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body{
+            background: rgba(0, 0, 0, 0.82);
+            color: white;
+        }
+
+        .blue{
+            color: dodgerblue;
+        }
+
+        .green{
+            background-color: lightseagreen;
+        }
+
+        .red {
+            background-color : darkred;
+        }
+
+        .large-text{
+            font-size: 2em;
+        }
+
+        .custom-btn {
+
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+   }
+
+       .custom-btn:hover {
+          background-color: #434190;
+       }
+
+
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <form method="post" class="row">
+
+        <!-- Sizes -->
+        <div class="col-3 mb-4">
+            <p class="blue large-text text-center">Select salad size:</p>
+            <select name="size" class="form-control" autocomplete="off">
+                {% for size in sizes %}
+                    {% if size == "Regular" %}
+                        <option value="{{ size }}" selected>{{ size }}</option>
+                    {% else %}
+                        <option value="{{ size }}">{{ size }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" min="1" value="1">
+
+        </div>
+
+        <!-- Proteins -->
+        <div class="col-md-3">
+            <p class="blue large-text">Select Proteins:</p>
+            {% for protein in proteins %}
+            <div class="protein-container form-group">
+                <div class="custom-control custom-checkbox mb-3">
+                    <input type="checkbox" class="custom-control-input protein-checkbox" id="protein_{{ protein }}" name="protein" value="{{ protein }}" autocomplete="off">
+                    <label class="custom-control-label" for="protein_{{ protein }}">{{ protein }}</label>
+                </div>
+                <select name="protein_size_{{ protein }}" class="form-control protein-size" style="display: none;" autocomplete="off">
+                    {% for psize in protein_sizes %}
+
+                        {% if psize == "1" %}
+                            <script>console.log("{{psize}}")</script>
+                            <option value="{{ psize }}" selected>{{ psize }}</option>
+                        {% else %}
+                            <option value="{{ psize }}">{{ psize }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Dressings -->
+        <div class="col-md-3">
+            <p class="blue large-text">Select Dressings:</p>
+            {% for dressing in dressings %}
+            <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="dressing_{{ dressing }}" name="dressing" value="{{ dressing }}" autocomplete="off">
+                <label class="custom-control-label" for="dressing_{{ dressing }}">{{ dressing }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sprinkles -->
+        <div class="col-md-3">
+            <p class="blue large-text">Select Sprinkles:</p>
+            {% for sprinkle in sprinkles %}
+            <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="sprinkle_{{ sprinkle }}" name="sprinkle" value="{{ sprinkle }}" autocomplete="off">
+                <label class="custom-control-label" for="sprinkle_{{ sprinkle }}">{{ sprinkle }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-12 text-center mt-4">
+            <input type="submit" value="Create" class="btn btn-primary btn-lg">
+        </div>
+
+    </form>
+
+
+
+
+
+    <div class="row">
+        <div class="col-4  col-sm-4 offset-sm-0">
+            <h2 class="mt-5 blue">Basket</h2>
+        </div>
+        <div class="col-4 offset-4 col-sm-8 offset-sm-0" style="display: flex; justify-content: flex-end;">
+        <!-- Clear Basket Button -->
+        <form method="post" action="/clear_basket" style="margin-right: 1em;">
+            <button style="margin: 1em;margin-bottom:-1em;" class="btn btn-secondary btn-lg" type="submit">Clear Basket</button>
+        </form>
+        <!-- Order All Button -->
+        <form method="post" action="/order_all">
+            <button style="margin: 1em;margin-bottom:-1em;" class="btn btn-primary btn-lg" type="submit">Order All</button>
+        </form>
+    </div>
+
+    </div>
+    <table class="table table-bordered blue">
+        <thead>
+            <tr>
+                <th>Size</th>
+                <th>Proteins</th>
+                <th>Dressing</th>
+                <th>Sprinkle</th>
+                <th>Quantity</th>
+                <th>Order</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for idx, salad in enumerate(basket) %}
+            <tr>
+
+                <td>{{ salad.Size }}</td>
+                <td>{{ salad.Proteins }}</td>
+                <td>{{ salad.Dressings }}</td>
+                <td>{{ salad.Sprinkles }}</td>
+                <td>{{ salad.Quantity }}</td>
+                <td>
+                    <form method="post" action="/order">
+                        <input type="hidden" name="salad_id" value="{{ idx }}">
+                        <input class="green custom-btn" type="submit" value="Order">
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="/delete">
+                        <input type="hidden" name="salad_id" value="{{ idx }}">
+                        <input class="red custom-btn" type="submit" value="Delete">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Your custom script -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const proteinCheckboxes = document.querySelectorAll('.protein-checkbox');
+        proteinCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const sizeDropdown = this.closest('.protein-container').querySelector('.protein-size');
+                if (this.checked) {
+                    sizeDropdown.style.display = "block";
+                } else {
+                    sizeDropdown.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+</html>
