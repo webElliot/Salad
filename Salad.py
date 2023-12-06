@@ -2,6 +2,15 @@ from dataclasses import dataclass
 from SaladDraw import SaladCreator
 from typing import List
 
+Salad_Display_Names = {
+	"Crunch Box": "Crunch Box".upper(),
+	"Leaf Box": "Leaf Box".upper(),
+	"Poké bowl": "Poké bowl".upper()
+	}
+Salad_Names = ["Crunch Box", "Leaf Box", "Poké bowl"]
+
+
+
 Mapping = {
 	"Size": {
 		"Large": "LRG",
@@ -35,9 +44,6 @@ Mapping = {
 
 		}
 	}
-
-
-
 
 
 
@@ -86,6 +92,7 @@ class Dots:
 			return Dots.DOUBLE_SIZE
 	@staticmethod
 	def getProteinType(Name):
+
 		return Dots.Protein_YCoords.get(Name)
 
 	@staticmethod
@@ -95,35 +102,125 @@ class Dots:
 	def getSprinklesDot(Name):
 		return Dots.DOT_Locations.get("Sprinkles").get(Name)
 
+class Poke_Dots:
+	FIRST_SIZE = 1
+	SECOND_SIZE = 2
+	THIRD_SIZE = 3
+
+	Protein_YCoords = {
+		"Sashimi": 100,
+		"Chicken": 175,
+		"Tempeh": 245,
+		"Halloumi": 325,
+		"Avocado": 400,
+		"Kimchi": 475,
+		"Gyoza": 545,
+		}
+
+	DOT_Locations = {
+		"Dressing": {
+			"Sriracha Mayo": (680 , 85) ,
+			"Ponzu": (680 , 125) ,
+			"Lemon Pesto": (680 , 168) ,
+			"Balsamic": (680 , 210) ,
+			"Lemon Must.": (680 , 252) ,
+			"Teriyaki Mayo": (680 , 292) ,
+			"Honey & Must.": (680 , 335) ,
+			"Smoked Chilli": (680 , 377) ,
+			} ,
+		"Sprinkles": {
+			"Furikake": (680 , 439) ,
+			"Chilli Flakes": (680 , 468) ,
+			"Croutons": (680 , 500) ,
+			"Shallots": (680 , 532) ,
+			"Toasted seeds": (680 , 567) ,
+
+			}
+		}
+
+	@staticmethod
+	def getProteinSize (protein_name, Size):
+		if protein_name == "Gyoza":
+			if Size == "1":
+				return Dots.HALF_SIZE
+			elif Size == "2":
+				return Dots.WHOLE_SIZE
+			elif Size == "3":
+				return Dots.DOUBLE_SIZE
+
+			return
+
+		if Size == "1/2":
+			return Dots.HALF_SIZE
+		elif Size == "1":
+			return Dots.WHOLE_SIZE
+		elif Size == "2":
+			return Dots.DOUBLE_SIZE
+
+	@staticmethod
+	def getProteinType (Name):
+		return Poke_Dots.Protein_YCoords.get(Name)
+
+	@staticmethod
+	def getDressingDot (Name):
+		return Poke_Dots.DOT_Locations.get("Dressing").get(Name)
+
+	@staticmethod
+	def getSprinklesDot (Name):
+		return Poke_Dots.DOT_Locations.get("Sprinkles").get(Name)
+
+
+
 
 protein_sizes = ["1/2" , "1" , "2" ]
+
+
 
 @dataclass
 class Protein:
 	Name : str
 	Size : str # ["1/2" , "1" , "2" ]
 
+
 	def __repr__(self):
 		return f"{self.Size} {self.Name}"
 
 @dataclass
 class Salad:
+	Name: str
 	Size: str
 	Proteins: List[Protein]
 	Dressings: List[str]
 	Sprinkles: List[str]
 
+	Gluten_Free : bool = False
 	Quantity : int = 1
+
+	Pokebowl: bool = False
+	image_path = "Sticker PNG.png"
+
+	def __post_init__(self):
+		if self.Name == "Poké bowl":
+			self.Pokebowl = True
+			self.image_path = "Sticker Poke.png"
+
 
 	def getSize (self):
 		return Mapping.get("Size" , { }).get(self.Size)
 
 	def getProteinDot(self):
+		if self.Pokebowl:
+			print("it's poke protein")
+			return [( Poke_Dots.getProteinSize(Protein.Name,Protein.Size) , Poke_Dots.getProteinType(Protein.Name)) for Protein in self.Proteins if print(f"[{Protein.Name}]") != 696969]
 		return [( Dots.getProteinSize(Protein.Size) , Dots.getProteinType(Protein.Name)) for Protein in self.Proteins]
 
 	def getDressingDot(self):
+		if self.Pokebowl:
+			return [Poke_Dots.getDressingDot(Name) for Name in self.Dressings ]
 		return [Dots.getDressingDot(Name) for Name in self.Dressings ]
 	def getSprinklesDot(self):
+		if self.Pokebowl:
+			return [Poke_Dots.getSprinklesDot(Name) for Name in self.Sprinkles ]
 		return [Dots.getSprinklesDot(Name) for Name in self.Sprinkles ]
 
 	def getDressingsNames(self):
@@ -132,36 +229,12 @@ class Salad:
 	def getSprinklesNames(self):
 		return self.Dressings
 
+
+
+
 if  __name__ == "__main__":
-	Salad_Example = Salad(
-		Size = "Large" ,
-		Proteins = [
-			Protein(Name = "Chicken" , Size = "1/2") ,
-			Protein(Name = "Halloumi" , Size = "1/2") ,
-			Protein(Name = "Avocado" , Size = "2") ,
-
-			] ,
-		Dressings = [ "Ponzu" ,
-		              "Smoked Chilli" ,
-		              "Lemon Pesto" ,
-		              "Siracha Mayo" ,
-		              "Honey & Must." ,
-
-		              ] ,
-		Sprinkles = [ "Croutons" ]
-		)
-
-	Salad_Example_2 = Salad(
-		Size = "Mini" ,
-		Proteins = [
-			Protein(Name = "Goat Ch." , Size = "2") ,
-			Protein(Name = "Tempeh" , Size = "2")
-			] ,
-		Dressings = [ "Honey & Must." , "Balsamic" ] ,
-		Sprinkles = [ "Seeds" ] ,
-		)
-
 	Salad_Example_3 = Salad(
+		Name = "Leaf box",
 		Size = "Regular" ,
 		Proteins = [
 			Protein(Name = "Kimchi" , Size = "1") ,
@@ -175,6 +248,23 @@ if  __name__ == "__main__":
 			"Crispy Onion"
 			]
 		)
+
+	Salad_Example = Salad(
+		Size = "Regular" ,
+		Proteins = [
+			Protein(Name = "Gyoza" , Size = "1") ,
+			Protein(Name = "Chicken" , Size = "1/2") ,
+
+			] ,
+		Dressings = [ "Ponzu" ] ,
+		Sprinkles = [
+			"Toasted seeds" ,
+			],
+		Gluten_Free = False,
+		Name = "Poké bowl"
+		)
+
+
 
 	pdfInstance = SaladCreator(Salad = Salad_Example)
 	pdfInstance.run()

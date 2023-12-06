@@ -42,11 +42,30 @@
        }
 
 
+
+        .hidden {
+                    display: none;
+                }
+        .active-btn {
+            background-color: lightseagreen !important; /* Override Bootstrap styles */
+        }
     </style>
 </head>
 <body>
+
 <div class="container mt-4">
-    <form method="post" class="row">
+    <div class="row">
+        <div class="btn-group mb-4 col-6 offset-3" role="group" aria-label="Basic example">
+            {% for Salad_Name in salad_names %}
+                <button type="button" class="btn btn-secondary custom-btn" value="{{Salad_Name}}">{{Salad_Name}}</button>
+            {% endfor %}
+
+        </div>
+    </div>
+
+
+    <form method="post" class="row hidden" id="creationForm">
+        <input name="box_type" id="BoxType" value="" hidden>
 
         <!-- Sizes -->
         <div class="col-3 mb-4">
@@ -64,6 +83,12 @@
 
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" name="quantity" min="1" value="1">
+            <div class="custom-control custom-checkbox mb-3 mt-3" style="margin-top: 1em;margin-left: 2em">
+                 <input class="custom-control-input" type="checkbox" id="Gluten_Free" name="Gluten_Free" value="Gluten_Free">
+                <label style="transform: scale(1.5) !important;" class="custom-control-label" for="Gluten_Free"> Gluten Free</label><br>
+
+            </div>
+
 
         </div>
 
@@ -119,7 +144,96 @@
 
     </form>
 
+    <form method="post" class="row hidden" id="creationFormPoke">
+        <input name="box_type" id="pokeBoxType" value="Poké bowl" hidden>
 
+        <!-- Sizes -->
+        <div class="col-3 mb-4">
+            <p class="blue large-text text-center">Select salad size:</p>
+            <select name="size" class="form-control" autocomplete="off">
+                {% for size in sizes %}
+                    {% if size == "Regular" %}
+                        <option value="{{ size }}" selected>{{ size }}</option>
+                    {% else %}
+                        <option value="{{ size }}">{{ size }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity_poke" name="quantity" min="1" value="1">
+            <div class="custom-control custom-checkbox mb-3 mt-3" style="margin-top: 1em;margin-left: 2em">
+                 <input class="custom-control-input" type="checkbox" id="Gluten_Free_poke" name="Gluten_Free_poke" value="Gluten_Free">
+                <label style="transform: scale(1.5) !important;" class="custom-control-label" for="Gluten_Free_poke"> Gluten Free</label><br>
+
+            </div>
+
+
+        </div>
+
+        <!-- Proteins -->
+        <div class="col-md-3">
+            <p class="blue large-text">Select Proteins:</p>
+            {% for poke_protein in poke_proteins %}
+
+            <div class="protein-container form-group">
+                <div class="custom-control custom-checkbox mb-3">
+                    <input type="checkbox" class="custom-control-input protein-checkbox" id="poke_protein_{{ poke_protein }}" name="protein" value="{{ poke_protein }}" autocomplete="off">
+                    <label class="custom-control-label" for="poke_protein_{{ poke_protein }}">{{ poke_protein }}</label>
+                </div>
+                <select name="protein_size_{{ poke_protein }}" class="form-control protein-size" style="display: none;" autocomplete="off">
+
+                {% if poke_protein == "Gyoza" %}
+                    {% set poke_sizes = ["1", "2", "3"] %}
+                {% else %}
+                    {% set poke_sizes = protein_sizes %}
+                {% endif %}
+
+                 {% for poke_p_size in poke_sizes %}
+                    {% if poke_p_size == "1" %}
+                        <option value="{{ poke_p_size }}" selected>{{ poke_p_size }}</option>
+                    {% else %}
+                        <option value="{{ poke_p_size }}">{{ poke_p_size }}</option>
+                    {% endif %}
+
+                {% endfor %}
+
+
+
+
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Dressings -->
+        <div class="col-md-3">
+            <p class="blue large-text">Select Dressings:</p>
+            {% for dressing2 in poke_dressings %}
+            <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="poke_dressing_{{ dressing2 }}" name="dressing" value="{{ dressing2 }}" autocomplete="off">
+                <label class="custom-control-label" for="poke_dressing_{{ dressing2 }}">{{ dressing2 }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sprinkles -->
+        <div class="col-md-3">
+            <p class="blue large-text">Select Sprinkles:</p>
+            {% for sprinkle2 in poke_sprinkles %}
+            <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="poke_sprinkle_{{ sprinkle2 }}" name="sprinkle" value="{{ sprinkle2 }}" autocomplete="off">
+                <label class="custom-control-label" for="poke_sprinkle_{{ sprinkle2 }}">{{ sprinkle2 }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-12 text-center mt-4">
+            <input type="submit" value="Create" class="btn btn-primary btn-lg">
+        </div>
+
+    </form>
 
 
 
@@ -136,16 +250,20 @@
         <form method="post" action="/order_all">
             <button style="margin: 1em;margin-bottom:-1em;" class="btn btn-primary btn-lg" type="submit">Order All</button>
         </form>
+
+        <span id="order_count" style="margin: 1em;background: #001c2d" class="btn btn-primary btn-lg">{{basket_size}} Orders : {{basket_total}} Boxes</span>
     </div>
 
     </div>
     <table class="table table-bordered blue">
         <thead>
             <tr>
+                <th>Name</th>
                 <th>Size</th>
                 <th>Proteins</th>
                 <th>Dressing</th>
                 <th>Sprinkle</th>
+                <th>Gluten Free</th>
                 <th>Quantity</th>
                 <th>Order</th>
                 <th>Delete</th>
@@ -154,11 +272,12 @@
         <tbody>
             {% for idx, salad in enumerate(basket) %}
             <tr>
-
+                <td>{{ salad.Name }}</td>
                 <td>{{ salad.Size }}</td>
                 <td>{{ salad.Proteins }}</td>
                 <td>{{ salad.Dressings }}</td>
                 <td>{{ salad.Sprinkles }}</td>
+                <td>{{ salad.Gluten_Free }}</td>
                 <td>{{ salad.Quantity }}</td>
                 <td>
                     <form method="post" action="/order">
@@ -179,26 +298,173 @@
 
 
 </div>
-
+</body>
 <!-- Bootstrap JS and Popper.js -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<!-- Your custom script -->
 <script>
+    // Script to make the Add to basket use API's instead of reloading the page to keep the menu's open.
     document.addEventListener("DOMContentLoaded", function() {
-        const proteinCheckboxes = document.querySelectorAll('.protein-checkbox');
-        proteinCheckboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                const sizeDropdown = this.closest('.protein-container').querySelector('.protein-size');
-                if (this.checked) {
-                    sizeDropdown.style.display = "block";
+    const creationForm = document.getElementById('creationForm');
+    const creationFormPoke = document.getElementById('creationFormPoke');
+
+     // Function to clear selections
+    function clearSelections(form) {
+        form.querySelectorAll('.protein-checkbox, input[name="dressing"], input[name="sprinkle"]').forEach(input => {
+            input.checked = false;
+        });
+        // Hide protein size select if it was shown
+        form.querySelectorAll('.protein-size').forEach(select => {
+            select.style.display = 'none';
+        });
+    }
+
+    // Function to handle form submission
+    function handleFormSubmit(event, form) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Collect form data
+        const formData = new FormData(form);
+
+        // Send AJAX POST request to the server
+        fetch('/add_to_basket', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
+          .then(data => {
+              if(data.success) {
+                  // On success, fetch the updated basket
+                  updateBasket();
+                  clearSelections(form);
+
+              } else {
+                  // Handle the error case
+                  console.error('Error adding item to basket:', data.message);
+              }
+          }).catch(error => console.error('Error:', error));
+    }
+
+    // Attach event listeners to both forms
+    creationForm.addEventListener('submit', (event) => handleFormSubmit(event, creationForm));
+    creationFormPoke.addEventListener('submit', (event) => handleFormSubmit(event, creationFormPoke));
+});
+
+function updateBasket() {
+    fetch('/get_basket')
+        .then(response => response.json())
+        .then(data => {
+            const display_basket = data.Basket;
+            const totalOrders = data.total_orders;
+            const basketSize = data.basket_size;
+
+            // Update the basket table on the page
+            const basketTableBody = document.querySelector('.table tbody');
+            basketTableBody.innerHTML = ''; // Clear existing content
+
+            display_basket.forEach((salad, idx) => {
+                // Create a new row for each item in the basket
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${salad.Name}</td>
+                    <td>${salad.Size}</td>
+                    <td>${salad.Proteins}</td>
+                    <td>${salad.Dressings}</td>
+                    <td>${salad.Sprinkles}</td>
+                    <td>${salad.Gluten_Free}</td>
+                    <td>${salad.Quantity}</td>
+                    <td>
+                        <form method="post" action="/order">
+                            <input type="hidden" name="salad_id" value="${idx}">
+                            <input class="green custom-btn" type="submit" value="Order">
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="/delete">
+                            <input type="hidden" name="salad_id" value="${idx}">
+                            <input class="red custom-btn" type="submit" value="Delete">
+                        </form>
+                    </td>
+                `;
+                // Append the row to the table body
+                basketTableBody.appendChild(row);
+            });
+
+            // Update the order count span
+            const orderCountSpan = document.getElementById('order_count');
+            orderCountSpan.textContent = `${basketSize} Orders : ${totalOrders} Boxes`;
+        }).catch(error => console.error('Error:', error));
+}
+
+
+</script>
+
+
+<script>
+    // Salad bowl type listener
+
+        document.addEventListener("DOMContentLoaded", function() {
+        var buttons = document.querySelectorAll('.btn-group .btn');
+        var defaultForm = document.getElementById('creationForm');
+        var pokeForm = document.getElementById('creationFormPoke');
+
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                buttons.forEach(function(btn) {
+                    btn.classList.remove('active-btn');
+                });
+
+                // Add active class to clicked button
+                button.classList.add('active-btn');
+
+                // Set the value for BoxType
+                document.getElementById('BoxType').value = button.value;
+                console.log(BoxType.value);
+
+                // Check if the clicked button is 'Poké bowl'
+                if (button.value === "Poké bowl") {
+                    // Show Poké bowl form and hide default form
+                    pokeForm.classList.remove('hidden');
+                    defaultForm.classList.add('hidden');
                 } else {
-                    sizeDropdown.style.display = "none";
+                    // Show default form and hide Poké bowl form
+                    defaultForm.classList.remove('hidden');
+                    pokeForm.classList.add('hidden');
                 }
             });
         });
     });
+
+
+    // checkbox listener
+    document.addEventListener("DOMContentLoaded", function() {
+    const form1ProteinCheckboxes = document.querySelectorAll('#creationForm .protein-checkbox');
+    const form2ProteinCheckboxes = document.querySelectorAll('#creationFormPoke .protein-checkbox');
+
+    // Function to add event listeners to checkboxes
+    function addCheckboxListeners(checkboxes) {
+        checkboxes.forEach(function(checkbox) {
+            console.log(checkbox);
+            checkbox.addEventListener('change', function() {
+                const sizeDropdown = this.closest('.protein-container').querySelector('.protein-size');
+                sizeDropdown.style.display = this.checked ? "block" : "none";
+            });
+        });
+    }
+
+    // Add listeners to both forms
+    addCheckboxListeners(form1ProteinCheckboxes);
+    addCheckboxListeners(form2ProteinCheckboxes);
+});
+
+
+
+    // Click on text clicks on checkboxes.
+    
+
+
 </script>
+
 </html>

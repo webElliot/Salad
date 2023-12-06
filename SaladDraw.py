@@ -1,4 +1,5 @@
 from PIL import Image , ImageDraw
+from Classes.fonts import Add_Notes
 
 class Size:
 	@staticmethod
@@ -31,8 +32,8 @@ class SaladCreator:
 
 	def __init__(self, Salad):
 		self.Salad = Salad
-		self.image = Image.open('Sticker PNG.png')
-
+		#self.image = Image.open(self.Salad.image_path)
+		self.image = Add_Notes(self.Salad).image
 		self.colour = "black" # Colour for all Circles / Rectangles
 
 	def run(self):
@@ -41,6 +42,7 @@ class SaladCreator:
 
 		# Draw Circles around Protein sizes.
 		for Location in self.Salad.getProteinDot():
+			print(Location)
 			self.drawCircle(coord = Location)
 
 		# Fill in dots for Dressings
