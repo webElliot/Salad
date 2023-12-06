@@ -1,4 +1,14 @@
 ## Salad Order Flask Site
+
+## Relevant skills
+- Javascript & JQuery
+- Flask
+- Html/Css
+- Memory application (Usage of Bytes & Stream)
+- PIL (Image editing)
+- Dataclasses
+
+
 ### Development site link:
 http://66.85.157.72:5055/
 
